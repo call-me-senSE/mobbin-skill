@@ -1,14 +1,15 @@
 ---
 name: mobbin-ui-research
-description: "Use when the user needs UI/UX research using Mobbin MCP — screen references, flow research, competitive audits, pattern exploration, or PRD-driven research. Triggers on: Mobbin search, mobbin research, screen references, product flow research, pattern analysis, competitive UI audit, UX benchmarking, onboarding flow, checkout flow, empty states, error states, confirmation screens, fintech UX, crypto UX, AI product patterns, SaaS dashboard patterns, ecommerce checkout patterns, PRD research, or turning abstract product questions into concrete screen and flow searches. This skill uses the Mobbin MCP server specifically — not Refero or other design reference tools."
+description: "Use when the user needs UI/UX research using Mobbin MCP — screen references, flow research, competitive audits, pattern exploration, or PRD-driven research. Triggers on: Mobbin search, mobbin research, screen references, product flow research, pattern analysis, competitive UI audit, UX benchmarking, onboarding flow, checkout flow, empty states, error states, confirmation screens, fintech UX, crypto UX, AI product patterns, SaaS dashboard patterns, ecommerce checkout patterns, PRD research, website section references (hero, pricing, footer), or turning abstract product questions into concrete screen, flow and section searches. This skill uses the Mobbin MCP server specifically — not Refero or other design reference tools."
 ---
 
 # Mobbin UI Research Skill
 
-Help the user research UI patterns using Mobbin MCP. Mobbin exposes two tools:
+Help the user research UI patterns using Mobbin MCP. Mobbin exposes three tools:
 
 - `search_screens` — AI-powered search that returns individual app screenshots with metadata. Best for studying specific screen types, components, layouts, and states.
 - `search_flows` — AI-powered search that returns multi-step user flows (e.g., onboarding, checkout, settings changes). Best for understanding how apps sequence screens across a journey.
+- `search_sections` — AI-powered search that returns sections of marketing websites (e.g., hero, pricing, about, footer). Best for landing page and marketing site research. Web only, and takes no `platform` parameter; paginate with `page`.
 
 Use `image_format: "webp"` on all calls (smaller than jpg, reduces context pressure).
 
@@ -28,14 +29,14 @@ Search:
 
 ## Platform Resolution
 
-The `platform` parameter is required on every call ("ios" or "web").
+The `platform` parameter is required on every `search_screens` and `search_flows` call ("ios" or "web"). `search_sections` has no platform parameter — it only covers websites.
 
 1. **Explicit**: User says "mobile app", "iOS", "iPhone" -> `ios`. User says "website", "web app", "SaaS", "desktop" -> `web`.
 2. **Inferrable**: If the user names a product that is clearly one platform (e.g., "Stripe dashboard" -> web, "Duolingo onboarding" -> ios), infer it.
 3. **Ambiguous**: If unclear, ask: "Should I search iOS apps, web apps, or both?"
 4. **Both**: For cross-platform comparison, run separate searches per platform and note which results come from which in the synthesis.
 
-## Screens vs. Flows: When to Use Each
+## Screens vs. Flows vs. Sections: When to Use Each
 
 | Goal | Tool | Why |
 |------|------|-----|
@@ -43,9 +44,18 @@ The `platform` parameter is required on every call ("ios" or "web").
 | Study a multi-step journey (onboarding, checkout, account setup) | `search_flows` | Returns the full sequence of screens users go through |
 | Component-level or design system research | `search_screens` | Need individual screens to decompose into primitives |
 | Understand how apps transition between steps | `search_flows` | Shows the screen-to-screen progression |
+| Study marketing website sections (hero, pricing, footer, about) | `search_sections` | Returns website sections rather than in-product screens |
 | Broad exploratory research | Both | Start with flows for journey context, then drill into specific screens |
 
 For most PRD-driven research, use **both tools**: flows to understand journey structure, screens to study specific moments in depth.
+
+## Call Settings
+
+Every search call accepts three context fields. Set them on every call, and keep all three **identical across every call in the same task**:
+
+- `output_destination` — what happens to the results next, chosen by what gets made: `code` (building UI in a codebase or coded prototype), `design_tool` (recreating on a canvas like Figma), `doc` (report, PRD, spec, slides), `reference_library` (only when saving results for later is the ask), `chat` (answer in conversation only), or `other`. If the request doesn't say, go by where you're running: a coding agent in a repo means `code`, a design tool means `design_tool`, a plain chat means `chat`.
+- `output_tool` — the product the results go into next, if known (e.g., Figma, Notion). Product name only; omit when unknown.
+- `task_intent` — one short English sentence summarising the overall task. No verbatim user messages, file contents, or personal data.
 
 ## Workflow
 
@@ -100,6 +110,23 @@ Describe the journey, not a single screen:
 
 All queries must be under 500 characters. Use concrete visual language, not product theory.
 
+Also avoid in every query (screens, flows and sections):
+- **Negations** — "without ads", "no illustration". Describe what IS on screen instead.
+- **Vague style words** — "modern", "clean", "beautiful".
+- **Disconnected keyword lists** — write a description, not a tag list.
+- **Platform words** — don't write "iOS" or "web" in the query text; set the `platform` parameter instead.
+- **Several screens or intents in one query** — search each separately.
+
+To filter to one product, name the app in the query (e.g., "Spotify now-playing screen", "Duolingo onboarding flow").
+
+### Section queries (`search_sections`)
+
+Describe one website section and what's in it:
+
+- **Good**: "pricing section with three plan cards, monthly/annual toggle, and feature comparison table"
+- **Good**: "hero section with headline, email signup form, and product screenshot"
+- **Bad**: "landing page" (a whole page, not a section)
+
 See `references/query-patterns.md` for the full formula and example catalog with platform-specific tips.
 
 ## Working with Results
@@ -119,6 +146,17 @@ See `references/query-patterns.md` for the full formula and example catalog with
 - **Note step-to-step transitions**: What information carries forward between screens? Where does the app ask for input vs. show confirmation?
 - **Compare flow length**: Shorter flows reduce drop-off but may overload individual screens. Note how different apps balance depth vs. breadth.
 - **Attribute findings**: Same rule as screens — every flow referenced MUST include app name and Mobbin URL as a clickable link.
+
+### Section results
+`search_sections` returns website section images with metadata. Analyze them the same way as screens and attribute every section with its Mobbin URL.
+
+### Saving and embedding results
+- Inline images in results are **low-res previews** for your own analysis — never hand them to the user as deliverables.
+- When the user wants to save, export, embed, or paste results (files, Figma, Notion, docs, slides), download the high-resolution image from each result's `image_url`.
+- `image_url` links **expire after 30 days**, so download the file rather than linking to it. Always use the permanent `mobbin_url` when citing a screen.
+
+### Mobbin usage notice
+If a tool result contains an `ai_usage_notice`, show its markdown to the user **word for word**, as its own block after the results, keeping its formatting and line breaks. Do not paraphrase, shorten, or merge it with other text.
 
 ## Analysis Framework
 
@@ -219,4 +257,4 @@ Prefer: "These examples reduce uncertainty by repeating critical transaction det
 
 ## Scope
 
-This skill uses `search_screens` and `search_flows` from the Mobbin MCP server. Do not invent tools that don't exist (e.g., `get_screen`, `compare_flows`). If a tool call fails, check the tool name — only these two are available.
+This skill uses `search_screens`, `search_flows`, and `search_sections` from the Mobbin MCP server. Do not invent tools that don't exist (e.g., `get_screen`, `compare_flows`). If a tool call fails, check the tool name — only these three are available.

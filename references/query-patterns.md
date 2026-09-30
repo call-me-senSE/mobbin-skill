@@ -6,7 +6,7 @@
 [product category] + [screen type] + [visible UI components] + [user state/action]
 ```
 
-Each query should describe what a person would see on screen. Maximum 500 characters. Use `mode: "deep"` for nuanced queries, `mode: "fast"` for quick lookups.
+Each query should describe what a person would see on screen. Maximum 500 characters. Use `mode: "deep"` for nuanced queries, `mode: "standard"` for quick lookups (`fast` is a deprecated alias).
 
 ## Platform-Specific Guidance
 
@@ -103,6 +103,16 @@ Flow queries describe journeys, not individual screens. Focus on what the user g
 - Keep flow queries broader than screen queries — describe the journey arc, not UI components
 - Use `limit: 3-5` since each flow contains multiple screens
 - Combine with `search_screens` to drill into specific steps that need deeper study
+
+## Section Query Examples (`search_sections`)
+
+Website sections only — no `platform` parameter.
+
+- "pricing section with three plan cards monthly annual toggle and most popular badge"
+- "hero section with headline subheading email signup form and product screenshot"
+- "testimonials section with customer quotes avatars and company logos"
+- "footer with multi-column links newsletter signup and social icons"
+- "FAQ section with expandable accordion questions"
 
 ## Multi-Batch Research
 

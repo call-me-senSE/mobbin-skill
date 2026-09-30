@@ -7,7 +7,7 @@ Works with Claude Code, Cursor, Gemini CLI, Lovable, and any MCP-compatible agen
 ## What it does
 
 - Translates abstract UX goals into concrete Mobbin search queries
-- Searches both **individual screens** and **multi-step user flows** (onboarding, checkout, etc.)
+- Searches **individual screens**, **multi-step user flows** (onboarding, checkout, etc.), and **marketing website sections** (hero, pricing, footer)
 - Visually analyzes returned screenshots (layout, hierarchy, components, color)
 - Clusters findings into recurring UI patterns with linked references
 - Derives research queries from PRDs and product briefs automatically
