@@ -19,7 +19,7 @@ Works with Claude Code, Cursor, Gemini CLI, Lovable, and any MCP-compatible agen
 Requires [Mobbin MCP](#setup-mobbin-mcp) to be connected first. Copy and Paste in Terminal to install skill
 
 ```bash
-npx skills add https://github.com/ddruids/mobbin-skill
+npx skills add https://github.com/call-me-senSE/mobbin-skill
 ```
 
 ## Usage
@@ -86,6 +86,10 @@ https://api.mobbin.com/mcp
 ```
 
 </details>
+
+## Credits
+
+Based on [ddruids/mobbin-skill](https://github.com/ddruids/mobbin-skill), extended with `search_sections` support, consistent call settings, saving/embedding guidance, and Mobbin's usage-notice handling.
 
 ## License
 
